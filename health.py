@@ -51,7 +51,7 @@ tabs = st.tabs(["🧠 Mental Health Copilot", "🌿 Herbal Remedy Finder"])
 # Load sentiment model (cached)
 @st.cache_resource
 def load_sentiment_model():
-return pipeline("sentiment-analysis")
+    return pipeline("sentiment-analysis")
 
 sentiment_model = load_sentiment_model()
 
@@ -62,7 +62,6 @@ def analyze_sentiment(text):
         return {"label": "NEGATIVE", "score": 0.99}
     else:
         return {"label": "NEUTRAL", "score": 0.5}
-
 
 # Initialize mood log in session state
 if "mood_log" not in st.session_state:
@@ -77,10 +76,8 @@ with tabs[0]:
         if user_input.strip():
             result = [analyze_sentiment(user_input)]
 
-           
-
-            label = result["label"]
-            score = result["score"]
+            label = result[0]["label"]
+            score = result[0]["score"]
 
             st.session_state.mood_log.append((mood, user_input))
 
@@ -248,78 +245,3 @@ if analyze_button or condition:
         st.session_state.days_used = 0
     st.session_state.days_used += 1
     st.markdown(f"⏳ You’ve used Healia for **{st.session_state.days_used}** days. Keep going! 🎉")
-
-# --- Consultation Booking Tab ---
-
-
-with st.tabs(["🧠 Mental Health Copilot", "🌿 Herbal Remedy Finder", "📅 Consultation Booking"])[2]:
-    st.header("📅 Book a Consultation")
-    st.markdown("Schedule a consultation with our healthcare professionals.")
-
-    with st.form("booking_form"):
-        name = st.text_input("Full Name")
-        email = st.text_input("Email Address")
-        date = st.date_input("Preferred Date")
-        time = st.time_input("Preferred Time")
-        concern = st.selectbox("Health Concern", ["Mental Health", "Herbal Medicine", "General Consultation"])
-        submitted = st.form_submit_button("Book Appointment")
-
-    if submitted:
-        if not name or not email:
-            st.error("Please provide both your name and email.")
-        else:
-            # Save booking in session state
-            if "bookings" not in st.session_state:
-                st.session_state.bookings = []
-            booking = {
-                "Name": name,
-                "Email": email,
-                "Date": str(date),
-                "Time": str(time),
-                "Concern": concern
-            }
-            st.session_state.bookings.append(booking)
-            st.success(f"Thank you {name}! Your consultation for **{concern}** is booked on {date} at {time}.")
-            st.balloons()
- # --- Consultation Booking Tab ---
-with tabs[2]:
-    st.header("📅 Book a Consultation")
-    st.markdown("Schedule a session with a certified herbalist or mental health coach.")
-
-    name = st.text_input("Full Name")
-    email = st.text_input("Email")
-    preferred_date = st.date_input("Preferred Date")
-    preferred_time = st.time_input("Preferred Time")
-
-    if st.button("📨 Submit Booking Request"):
-        if name and email:
-            st.success(f"Thank you {name}, your consultation request has been received. We'll contact you at {email}.")
-        else:
-            st.error("Please enter both your name and email to proceed.")
-   
-    
-
-    # Show existing bookings
-    if "bookings" in st.session_state and st.session_state.bookings:
-        st.markdown("### Your Bookings")
-        for i, b in enumerate(st.session_state.bookings, 1):
-            st.write(f"{i}. {b['Name']} - {b['Concern']} on {b['Date']} at {b['Time']} (Contact: {b['Email']})")
-
-        # Visualizations
-        df_bookings = pd.DataFrame(st.session_state.bookings)
-
-        # Bar chart: Bookings by health concern
-        st.subheader("📊 Bookings by Health Concern")
-        concern_counts = df_bookings["Concern"].value_counts()
-        st.bar_chart(concern_counts)
-
-        # Line chart: Bookings by date
-        st.subheader("📈 Bookings Over Time")
-        df_bookings['Date'] = pd.to_datetime(df_bookings['Date'])
-        bookings_by_date = df_bookings.groupby('Date').size().sort_index()
-        st.line_chart(bookings_by_date)
-
-
-# Footer
-st.markdown("---")
-st.caption("Healia © 2025 | Made for Hackathon Finals by Vicentia ✨")
