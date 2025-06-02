@@ -4,3 +4,4 @@ transformers
 requests
 matplotlib
 streamlit-lottie
+torch
