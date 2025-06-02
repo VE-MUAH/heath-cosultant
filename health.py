@@ -51,9 +51,18 @@ tabs = st.tabs(["🧠 Mental Health Copilot", "🌿 Herbal Remedy Finder"])
 # Load sentiment model (cached)
 @st.cache_resource
 def load_sentiment_model():
-    return pipeline("sentiment-analysis")
+return pipeline("sentiment-analysis")
 
 sentiment_model = load_sentiment_model()
+
+def analyze_sentiment(text):
+    if "happy" in text.lower():
+        return {"label": "POSITIVE", "score": 0.99}
+    elif "sad" in text.lower():
+        return {"label": "NEGATIVE", "score": 0.99}
+    else:
+        return {"label": "NEUTRAL", "score": 0.5}
+
 
 # Initialize mood log in session state
 if "mood_log" not in st.session_state:
@@ -66,7 +75,10 @@ with tabs[0]:
 
     if analyze_button:
         if user_input.strip():
-            result = sentiment_model(user_input)[0]
+            result = [analyze_sentiment(user_input)]
+
+           
+
             label = result["label"]
             score = result["score"]
 
@@ -238,6 +250,8 @@ if analyze_button or condition:
     st.markdown(f"⏳ You’ve used Healia for **{st.session_state.days_used}** days. Keep going! 🎉")
 
 # --- Consultation Booking Tab ---
+
+
 with st.tabs(["🧠 Mental Health Copilot", "🌿 Herbal Remedy Finder", "📅 Consultation Booking"])[2]:
     st.header("📅 Book a Consultation")
     st.markdown("Schedule a consultation with our healthcare professionals.")
@@ -267,6 +281,22 @@ with st.tabs(["🧠 Mental Health Copilot", "🌿 Herbal Remedy Finder", "📅 C
             st.session_state.bookings.append(booking)
             st.success(f"Thank you {name}! Your consultation for **{concern}** is booked on {date} at {time}.")
             st.balloons()
+ # --- Consultation Booking Tab ---
+with tabs[2]:
+    st.header("📅 Book a Consultation")
+    st.markdown("Schedule a session with a certified herbalist or mental health coach.")
+
+    name = st.text_input("Full Name")
+    email = st.text_input("Email")
+    preferred_date = st.date_input("Preferred Date")
+    preferred_time = st.time_input("Preferred Time")
+
+    if st.button("📨 Submit Booking Request"):
+        if name and email:
+            st.success(f"Thank you {name}, your consultation request has been received. We'll contact you at {email}.")
+        else:
+            st.error("Please enter both your name and email to proceed.")
+   
     
 
     # Show existing bookings
